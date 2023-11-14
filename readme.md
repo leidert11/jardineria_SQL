@@ -400,6 +400,15 @@ from producto
 order by cantidad_en_stock desc
 limit 1;
 ```
+```sql
+select p.* 
+from producto p 
+where p.cantidad_en_stock = (
+  select max(p.cantidad_en_stock)
+  from producto p 
+)
+order by p.nombre;
+```
 
 6. Devuelve el producto que menos unidades tiene en stock.
 ```sql 
