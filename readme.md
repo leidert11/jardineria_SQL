@@ -4,7 +4,7 @@
 
 ```sql
 select c.nombre_cliente , e.nombre , e.apellido1 
-from cliente c join empleado e ON c.codigo_empleado_rep_ventas = e.codigo_empleado 
+from cliente c join empleado e on c.codigo_empleado_rep_ventas = e.codigo_empleado 
 join pago on codigo_cliente = codigo_cliente ;
 ```
 
@@ -19,16 +19,16 @@ join empleado e on e.codigo_empleado = c.codigo_empleado_rep_ventas;
  3   Muestra el nombre de los clientes que no hayan realizado pagos junto con el nombre de sus representantes de ventas.
 
 ```sql
-select c.nombre_cliente, CONCAT(e.nombre, ' ', e.apellido1) AS representante
+select c.nombre_cliente, CONCAT(e.nombre, ' ', e.apellido1) as representante
 from cliente c
 join empleado e ON c.codigo_empleado_rep_ventas = e.codigo_empleado
-WHERE c.codigo_cliente NOT IN (select DISTINCT codigo_cliente from pago);
+where c.codigo_cliente not in (select DISTINCT codigo_cliente from pago);
 ```
 
  4 Devuelve el nombre de los clientes que han hecho pagos y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante.
 
 ```sql
-select c.nombre_cliente, CONCAT(e.nombre, ' ', e.apellido1) AS representante, o.ciudad
+select c.nombre_cliente, CONCAT(e.nombre, ' ', e.apellido1) as representante, o.ciudad
 from cliente c
 join empleado e ON c.codigo_empleado_rep_ventas = e.codigo_empleado
 join oficina o ON e.codigo_oficina = o.codigo_oficina
@@ -361,31 +361,66 @@ from cliente);
 
 2. Devuelve el nombre del producto que tenga el precio de venta más caro.
 ```sql
-
+select nombre
+from producto
+where precio_venta = (select max(precio_venta) from producto);
 ```
 3. Devuelve el nombre del producto del que se han vendido más unidades. (Tenga en cuenta que tendrá que calcular cuál es el número total de unidades que se han vendido de cada producto a partir de los datos de la tabla `detalle_pedido`)
 ```sql
+select nombre
+from producto
+where codigo_producto = (
+    select codigo_producto
+    from detalle_pedido
+    group by codigo_producto
+    order by sum(cantidad) desc
+    limit 1
+);
 
 ```
 
 
 4. Los clientes cuyo límite de crédito sea mayor que los pagos que haya realizado. (Sin utilizar `INNER JOIN`).
 ```sql
+select nombre_cliente
+from cliente
+where limite_credito > (
+    select sum(total)
+    from pago
+    where pago.codigo_cliente = cliente.codigo_cliente
+    group by codigo_cliente
+);
 
 ```
 
 5. Devuelve el producto que más unidades tiene en stock.
 ```sql
-
+select nombre, cantidad_en_stock
+from producto
+order by cantidad_en_stock desc
+limit 1;
 ```
 
 6. Devuelve el producto que menos unidades tiene en stock.
 ```sql 
+select nombre
+from producto
+where cantidad_en_stock = (
+    select min(cantidad_en_stock)
+    from producto
+);
 
 ```
 
 7. Devuelve el nombre, los apellidos y el email de los empleados que están a cargo de **Alberto Soria**.
 ```sql
+select e.nombre, e.apellido1, e.email
+from empleado e
+where e.codigo_jefe = (
+    select e2.codigo_empleado
+    from empleado e2
+    where concat(e2.nombre, ' ', e2.apellido1) = 'Alberto Soria'
+);
 
 ```
 #### 1.4.8.2 Subconsultas con ALL y ANY
@@ -393,17 +428,23 @@ from cliente);
 
 1. Devuelve el nombre del cliente con mayor límite de crédito.
 ```sql 
-
+select nombre_cliente,limite_credito
+from cliente
+where limite_credito = (select max(limite_credito) from cliente);
 ```
 
 2. Devuelve el nombre del producto que tenga el precio de venta más caro.
 ```sql 
-
+select nombre
+from producto
+where precio_venta = (select max(precio_venta) from producto);
 ```
 
 3. Devuelve el producto que menos unidades tiene en stock.
 ```sql 
-
+select nombre
+from producto
+where cantidad_en_stock = (select min(cantidad_en_stock) from producto);
 ```
 
 #### 1.4.8.3 Subconsultas con IN y NOT IN
@@ -411,42 +452,55 @@ from cliente);
 
 1. Devuelve el nombre, apellido1 y cargo de los empleados que no representen a ningún cliente.
 ```sql 
-
+select nombre, apellido1, puesto
+from empleado
+where codigo_empleado not in (select distinct codigo_empleado_rep_ventas from cliente);
 ```
 
 2. Devuelve un listado que muestre solamente los clientes que no han realizado ningún pago.
 ```sql 
-
+select *
+from cliente
+where codigo_cliente not in (select distinct codigo_cliente from pago);
 ```
 
 3. Devuelve un listado que muestre solamente los clientes que sí han realizado algún pago.
 ```sql 
-
+select *
+from cliente
+where codigo_cliente in (select distinct codigo_cliente from pago);
 ```
 
 4. Devuelve un listado de los productos que nunca han aparecido en un pedido.
 ```sql 
-
+select *
+from producto
+where codigo_producto not in (select distinct codigo_producto from detalle_pedido);
 ```
 
 5. Devuelve el nombre, apellidos, puesto y teléfono de la oficina de aquellos empleados que no sean representante de ventas de ningún cliente.
 ```sql 
-
+select e.nombre, e.apellido1, e.puesto, o.telefono
+from empleado e
+join oficina o on e.codigo_oficina = o.codigo_oficina
+where e.codigo_empleado not in (select distinct codigo_empleado_rep_ventas from cliente);
 ```
 
-```sql 
-
-```
 6. Devuelve las oficinas donde **no trabajan** ninguno de los empleados que hayan sido los representantes de ventas de algún cliente que haya realizado la 
 compra de algún producto de la gama `Frutales`.
 
 ```sql 
-
+select distinct o.*
+from oficina o
+left join empleado e on o.codigo_oficina = e.codigo_oficina
+where e.codigo_empleado not in (select distinct codigo_empleado_rep_ventas from cliente where codigo_cliente in (select distinct codigo_cliente from pedido p join detalle_pedido dp on p.codigo_pedido = dp.codigo_pedido join producto pr on dp.codigo_producto = pr.codigo_producto where pr.gama = 'Frutales'));
 ```
 7. Devuelve un listado con los clientes que han realizado algún pedido pero no han realizado ningún pago.
 
 ```sql
-
+select *
+from cliente
+where codigo_cliente in (select distinct codigo_cliente from pedido) and codigo_cliente not in (select distinct codigo_cliente from pago);
  ```
 
 #### 1.4.8.4 Subconsultas con EXISTS y NOT EXISTS
@@ -454,22 +508,30 @@ compra de algún producto de la gama `Frutales`.
 
 1. Devuelve un listado que muestre solamente los clientes que no han realizado ningún pago.
 ```sql 
-
+select *
+from cliente c
+where not exists (select 1 from pago p where c.codigo_cliente = p.codigo_cliente);
 ```
 
 2. Devuelve un listado que muestre solamente los clientes que sí han realizado algún pago.
 ```sql 
-
+select *
+from cliente c
+where exists (select 1 from pago p where c.codigo_cliente = p.codigo_cliente);
 ```
 
 3. Devuelve un listado de los productos que nunca han aparecido en un pedido.
 ```sql 
-
+select *
+from producto pr
+where not exists (select 1 from detalle_pedido dp where pr.codigo_producto = dp.codigo_producto);
 ```
 
 4. Devuelve un listado de los productos que han aparecido en un pedido alguna vez.
 ```sql 
-
+select  *
+from producto pr
+where exists (select 1 from detalle_pedido dp where pr.codigo_producto = dp.codigo_producto);
 ```
 
 
