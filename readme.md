@@ -543,4 +543,41 @@ from producto pr
 where exists (select 1 from detalle_pedido dp where pr.codigo_producto = dp.codigo_producto);
 ```
 
+## 5 TIPS con GROUP BY 
 
+1. muestre el nombre, limite de credito y cantidad de pedidos que a hecho cada cliente
+```sql 
+select c.nombre_cliente , c.limite_credito, count(*) as total_pedido_por_cliente 
+from cliente c
+join pedido p on c.codigo_cliente = p.codigo_cliente
+group by c.nombre_cliente , c.limite_credito;  
+```
+2. muestre el nombre del cliente con el cupo mayor de credito utilizando having
+
+```sql 
+ 
+```
+<!-- funciones escalares  substring --> 
+3.
+
+```sql 
+ 
+```
+<!-- agrupado con union all --> 
+4.
+
+```sql 
+ 
+```
+<!-- concatenar los valores de un resultado en una selda  , group_concat --> 
+5.
+
+```sql 
+ 
+```
+<!-- totales por cada agrupamiento , group by rollup ,ifnull--> 
+6.
+
+```sql 
+ 
+```
