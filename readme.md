@@ -552,32 +552,58 @@ from cliente c
 join pedido p on c.codigo_cliente = p.codigo_cliente
 group by c.nombre_cliente , c.limite_credito;  
 ```
-2. muestre el nombre del cliente con el cupo mayor de credito utilizando having
+2. Mostrar el total de ventas por cliente que tenga al menos dos pedidos realizados.
 
 ```sql 
- 
+select nombre_cliente , total_ventas
+from (
+  select c.nombre_cliente, p.codigo_pedido , sum(dp.cantidad * dp.precio_unidad ) as total_ventas
+  from cliente c
+  join pedido p on c.codigo_cliente = p.codigo_cliente
+  join detalle_pedido dp on p.codigo_pedido = dp.codigo_pedido
+  group by c.nombre_cliente , p.codigo_pedido
+) as ventas_por_pedido
+group by nombre_cliente
+having count(codigo_pedido) >= 2 ;
+
 ```
 <!-- funciones escalares  substring --> 
-3.
+3. muestra los primeros 30 caracteres de la descripción de los productos de la tabla "producto".
 
 ```sql 
- 
+select codigo_producto, nombre, SUBSTRING(descripcion, 1, 30) as descripcion_cortada
+FROM producto;
+```
+```sql 
+select nombre , left(descripcion, 30) as descripcion_cortada from producto;
 ```
 <!-- agrupado con union all --> 
-4.
-
+4. combina y muestra los nombres de clientes de la tabla "cliente" con los nombres de empleados de la tabla "empleado" en una lista única utilizando UNION ALL
 ```sql 
- 
+select nombre_cliente as nombre , 
+'cliente' as tipo from cliente 
+union all 
+select concat(nombre ,' ',apellido1,' ') as nombre ,
+'empleado' as tipo 
+from empleado;
 ```
 <!-- concatenar los valores de un resultado en una selda  , group_concat --> 
-5.
+5. Concatena los nombre de empleados con su cliente asignado
 
 ```sql 
- 
+select e.nombre as nombre_empleado ,
+group_concat(c.nombre_cliente) as nombre_cliente
+from empleado e
+left join cliente c on e.codigo_empleado = c.codigo_empleado_rep_ventas
+group by e.nombre;
 ```
 <!-- totales por cada agrupamiento , group by rollup ,ifnull--> 
-6.
+6. Obtén un informe que muestre el total de ventas por gama de producto y, adicionalmente, el gran total de todas las ventas. Si una gama no tiene ventas, se debe mostrar como "Sin ventas".
 
 ```sql 
- 
+select ifnull(g.gama,'total') as gama,
+ifnull(sum(p.precio_venta),'sin ventas') as total_ventas
+from gama_producto g 
+left join producto p on g.gama = p.gama
+group by g.gama with rollup;
 ```
