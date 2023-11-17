@@ -607,3 +607,50 @@ from gama_producto g
 left join producto p on g.gama = p.gama
 group by g.gama with rollup;
 ```
+
+## 5 TIPS con WHERE en SQL
+
+1.  muestra los clientes que no han realizado ningún pedido.
+
+```sql 
+select nombre_cliente
+from cliente
+where codigo_cliente not in (select distinct codigo_cliente from pedido);
+```
+
+2. obtenn el nombre de los clientes que han realizado pedidos más de una vez.
+
+```sql 
+select c.nombre_cliente
+from cliente c
+where c.codigo_cliente in (
+    select distinct codigo_cliente
+    from pedido
+    group by codigo_cliente
+    having count(codigo_pedido) > 1
+);
+```
+3. obten una lista de empleados cuyos nombres comiencen con 'M' y cuyo apellido1  comience con 'p'.
+
+```sql 
+select *
+from empleado
+where nombre regexp '^m' and apellido1 regexp '^p';
+```
+
+4. obten una lista de empleados que trabajan en oficinas ubicadas en las ciudades de Barcelona y Madrid
+```sql 
+select *
+from empleado
+where codigo_oficina in (
+    select distinct codigo_oficina
+    from oficina
+    where ciudad in ('Barcelona', 'Madrid')
+);
+```
+
+5. convierte los nombres de los empleados a mayusculas
+```sql 
+SELECT UPPER(nombre) AS nombre_en_mayusculas
+FROM empleado;
+```
