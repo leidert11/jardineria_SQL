@@ -655,9 +655,9 @@ SELECT UPPER(nombre) AS nombre_en_mayusculas
 FROM empleado;
 ```
 
-5 TIPS con UPDATE en SQL
+TIPS con UPDATE en SQL
 
--- editar utilizando el valor ya guardado
+editar utilizando el valor ya guardado
 
 1. Actualiza el correo electrónico del empleado con el código 5. concatenando su primer apellido, la extensión actual del empleado con el dominio "@jardineria.es".
 
@@ -667,7 +667,7 @@ set email = CONCAT(apellido1, extension, '@jardineria.es')
 where codigo_empleado = 5;
 ```
 
--- multile agrupamiento 
+multiple agrupamiento 
 
 2. Aumenta en un 5% el precio de venta de todos los productos en la tabla de productos que pertenecen a gamas con al menos 3 productos distintos.
 ```sql 
@@ -681,7 +681,7 @@ where gama IN (
 );
 
 ```
--- editar obteinedo e valor por subconsulta 
+editar obteinedo e valor por subconsulta 
 
 3. Aumenta en un 10% el límite de crédito de todos los clientes cuyo representante de ventas tiene el código 22. Esta actualización se realiza en función de la relación con el empleado que tiene el código especificado.
 ```sql 
@@ -705,7 +705,7 @@ where codigo_empleado_rep_ventas in (
 );
 ```
 
--- subconsultas en where 
+subconsultas en where 
 
 5. Muestra todos los clientes cuyos representantes de ventas tienen el puesto "Director Oficina".
 
@@ -719,7 +719,7 @@ where codigo_empleado_rep_ventas in (
 );
 ```
 
---udate con join 
+update con join 
 
 6.  Actualiza los precios unitarios en los detalles de los pedidos para que coincidan con los nuevos precios de venta de los productos.
 
@@ -728,11 +728,4 @@ update detalle_pedido dp
 join producto p on dp.codigo_producto = p.codigo_producto
 set dp.precio_unidad  = p.precio_venta 
 where dp.precio_unidad < p.precio_venta;
-```
-
-
-5. convierte los nombres de los empleados a mayusculas
-```sql 
-SELECT UPPER(nombre) AS nombre_en_mayusculas
-FROM empleado;
 ```
