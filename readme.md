@@ -618,7 +618,7 @@ from cliente
 where codigo_cliente not in (select distinct codigo_cliente from pedido);
 ```
 
-2. obtenn el nombre de los clientes que han realizado pedidos más de una vez.
+2. obten el nombre de los clientes que han realizado pedidos más de una vez.
 
 ```sql 
 select c.nombre_cliente
@@ -655,7 +655,7 @@ SELECT UPPER(nombre) AS nombre_en_mayusculas
 FROM empleado;
 ```
 
-TIPS con UPDATE en SQL
+## TIPS con UPDATE en SQL
 
 editar utilizando el valor ya guardado
 
